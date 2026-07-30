@@ -1,0 +1,19 @@
+{
+  "name": "swap-rc",
+  "version": "1.0.0",
+  "description": "TRON hot-wallet balance watcher that auto-sweeps TRX above a threshold to a collection wallet",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:restart": "pm2 restart trx-sweeper",
+    "pm2:logs": "pm2 logs trx-sweeper",
+    "pm2:stop": "pm2 stop trx-sweeper"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "tronweb": "^6.4.0"
+  }
+}
