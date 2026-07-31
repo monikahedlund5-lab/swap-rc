@@ -38,6 +38,6 @@ module.exports = {
   THRESHOLD_TRX: Number(process.env.THRESHOLD_TRX || 5),
   RESERVE_TRX: Number(process.env.RESERVE_TRX || 1),
   POLL_INTERVAL_MS: Number(process.env.POLL_INTERVAL_MS || 1000),
-  SWEEP_RETRY_COOLDOWN_MS: Number(process.env.SWEEP_RETRY_COOLDOWN_MS || 5000),
+  SWEEP_RETRY_COOLDOWN_MS: Number(process.env.SWEEP_RETRY_COOLDOWN_MS || 2000),
   PORT: Number(process.env.PORT || 3300),
 };

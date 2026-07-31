@@ -11,7 +11,7 @@ balance rises above a threshold (default 5 TRX), it immediately sweeps the balan
 - `src/monitor.js` - every `POLL_INTERVAL_MS` (default 1000ms), fetches each wallet's balance via `tronWeb.trx.getBalance`. If it exceeds `THRESHOLD_TRX`, calls `sweep.js`.
 - `src/sweep.js` - builds, signs (with the wallet's own private key), and broadcasts a TRX transfer to `COLLECTION_WALLET_ADDRESS`.
 - `src/server.js` - Express app bound to `127.0.0.1:PORT` only, exposing `/health` and `/status` (per-wallet balance, last check, last sweep, last error). Nginx is the only thing that should ever reach it.
-- Per-wallet state is in-memory: a `sweeping` flag prevents overlapping sweeps on the same wallet, and a failed sweep triggers a `SWEEP_RETRY_COOLDOWN_MS` cooldown so a stuck wallet doesn't get hammered every second.
+- Per-wallet state is in-memory: a `sweeping` flag prevents overlapping sweeps on the same wallet, and every sweep attempt (success or failure) triggers a `SWEEP_RETRY_COOLDOWN_MS` cooldown - both to back off a stuck/failing wallet and to give TronGrid's balance-read endpoint time to catch up with the just-confirmed block (it can lag a few seconds), which otherwise causes a stale-balance duplicate sweep attempt right after a successful one.
 
 ## Setup
 

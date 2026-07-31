@@ -36,6 +36,10 @@ async function checkWallet(wallet) {
     s.lastSweepAt = Date.now();
     s.lastSweepTxId = txId;
     s.sweepCount += 1;
+    // TronGrid's balance read can lag a couple seconds behind the block that just
+    // confirmed - without this, the very next tick can still see the pre-sweep
+    // balance and fire a harmless-but-noisy duplicate sweep attempt.
+    s.cooldownUntil = Date.now() + config.SWEEP_RETRY_COOLDOWN_MS;
     logger.info(`[${wallet.label}] swept successfully, tx ${txId}`);
   } catch (err) {
     s.lastError = `sweep failed: ${err.message}`;
