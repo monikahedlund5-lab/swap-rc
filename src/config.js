@@ -3,6 +3,7 @@
 require('dotenv').config({ quiet: true });
 
 const wallets = require('./wallets');
+const logger = require('./logger');
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -12,14 +13,22 @@ function requireEnv(name) {
   return value;
 }
 
-const WALLETS = wallets.map((wallet) => {
+// Wallets missing a private key are skipped (with a warning) rather than crashing the
+// whole process, so partial key rollout doesn't take down wallets that are configured.
+const WALLETS = wallets.reduce((acc, wallet) => {
   const envKey = `PK_${wallet.label.toUpperCase()}`;
   const privateKey = process.env[envKey];
   if (!privateKey) {
-    throw new Error(`Missing private key for wallet "${wallet.label}" - set ${envKey} in .env`);
+    logger.warn(`skipping wallet "${wallet.label}" - no private key set (${envKey} missing in .env)`);
+    return acc;
   }
-  return { ...wallet, privateKey };
-});
+  acc.push({ ...wallet, privateKey });
+  return acc;
+}, []);
+
+if (WALLETS.length === 0) {
+  throw new Error('No wallets have a configured private key - set at least one PK_<LABEL> in .env');
+}
 
 module.exports = {
   WALLETS,
