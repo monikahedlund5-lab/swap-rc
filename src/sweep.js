@@ -12,10 +12,14 @@ async function sweepWallet(wallet, balanceSun) {
     );
   }
 
+  // permissionId lets a wallet whose owner permission was reassigned elsewhere still
+  // sweep via its active permission (id 2 by default) - see src/wallets.js.
+  const options = wallet.permissionId != null ? { permissionId: wallet.permissionId } : {};
   const unsignedTx = await tronWeb.transactionBuilder.sendTrx(
     config.COLLECTION_WALLET,
     amountSun,
-    wallet.address
+    wallet.address,
+    options
   );
   const signedTx = await tronWeb.trx.sign(unsignedTx, wallet.privateKey);
   const receipt = await tronWeb.trx.sendRawTransaction(signedTx);
