@@ -34,7 +34,7 @@ module.exports = {
   WALLETS,
   COLLECTION_WALLET: requireEnv('COLLECTION_WALLET_ADDRESS'),
   TRONGRID_API_KEY: process.env.TRONGRID_API_KEY || '',
-  FULL_HOST: process.env.TRON_FULL_HOST || 'https://api.trongrid.us',
+  FULL_HOST: process.env.TRON_FULL_HOST || 'https://api.trongrid.io',
   THRESHOLD_TRX: Number(process.env.THRESHOLD_TRX || 5),
   RESERVE_TRX: Number(process.env.RESERVE_TRX || 1),
   POLL_INTERVAL_MS: Number(process.env.POLL_INTERVAL_MS || 1000),
