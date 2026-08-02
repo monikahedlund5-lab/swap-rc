@@ -10,14 +10,21 @@ function start() {
 
   app.get('/status', (_req, res) => {
     const snapshot = state.snapshot();
-    const wallets = config.WALLETS.map((wallet) => ({
-      label: wallet.label,
-      address: wallet.address,
-      ...snapshot[wallet.address],
-    }));
+    const wallets = config.WALLETS.map((wallet) => {
+      const asset = wallet.asset || 'trx';
+      return {
+        label: wallet.label,
+        address: wallet.address,
+        asset,
+        threshold: asset === 'usdt' ? config.THRESHOLD_USDT : config.THRESHOLD_TRX,
+        ...snapshot[wallet.address],
+      };
+    });
     res.json({
       collectionWallet: config.COLLECTION_WALLET,
       thresholdTrx: config.THRESHOLD_TRX,
+      thresholdUsdt: config.THRESHOLD_USDT,
+      usdtContractAddress: config.USDT_CONTRACT_ADDRESS,
       pollIntervalMs: config.POLL_INTERVAL_MS,
       wallets,
     });

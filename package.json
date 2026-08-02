@@ -1,7 +1,7 @@
 {
   "name": "swap-rc",
   "version": "1.0.0",
-  "description": "TRON hot-wallet balance watcher that auto-sweeps TRX above a threshold to a collection wallet",
+  "description": "TRON hot-wallet balance watcher that auto-sweeps TRX or USDT-TRC20 above a threshold to a collection wallet",
   "private": true,
   "main": "src/index.js",
   "scripts": {

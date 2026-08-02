@@ -2,37 +2,43 @@ const tronWeb = require('./tronClient');
 const config = require('./config');
 const state = require('./state');
 const logger = require('./logger');
+const trc20 = require('./trc20');
 const { sweepWallet, SUN_PER_TRX } = require('./sweep');
 
 async function checkWallet(wallet) {
   const s = state.get(wallet.address);
+  const asset = wallet.asset || 'trx';
+  const threshold = asset === 'usdt' ? config.THRESHOLD_USDT : config.THRESHOLD_TRX;
+  const symbol = asset === 'usdt' ? 'USDT' : 'TRX';
 
   if (s.sweeping) return;
   if (Date.now() < s.cooldownUntil) return;
 
-  let balanceSun;
+  let balanceUnits;
   try {
-    balanceSun = await tronWeb.trx.getBalance(wallet.address);
+    balanceUnits = asset === 'usdt'
+      ? await trc20.getUsdtBalance(wallet.address)
+      : await tronWeb.trx.getBalance(wallet.address);
   } catch (err) {
     s.lastError = `balance check failed: ${err.message}`;
     logger.error(`[${wallet.label}] balance check failed: ${err.message}`);
     return;
   }
 
-  s.balanceSun = balanceSun;
+  s.balanceUnits = balanceUnits;
   s.lastCheckAt = Date.now();
   s.lastError = null;
 
-  const balanceTrx = balanceSun / SUN_PER_TRX;
-  if (balanceTrx <= config.THRESHOLD_TRX) return;
+  const balance = balanceUnits / SUN_PER_TRX;
+  if (balance <= threshold) return;
 
   s.sweeping = true;
   logger.info(
-    `[${wallet.label}] balance ${balanceTrx} TRX exceeds threshold of ${config.THRESHOLD_TRX} TRX, sweeping to ${config.COLLECTION_WALLET}`
+    `[${wallet.label}] balance ${balance} ${symbol} exceeds threshold of ${threshold} ${symbol}, sweeping to ${config.COLLECTION_WALLET}`
   );
 
   try {
-    const txId = await sweepWallet(wallet, balanceSun);
+    const txId = await sweepWallet(wallet, balanceUnits);
     s.lastSweepAt = Date.now();
     s.lastSweepTxId = txId;
     s.sweepCount += 1;
@@ -58,7 +64,9 @@ function start() {
         logger.error(`[${wallet.label}] unexpected error: ${err.message}`);
       });
     }, config.POLL_INTERVAL_MS);
-    logger.info(`watching ${wallet.label} (${wallet.address}) every ${config.POLL_INTERVAL_MS}ms`);
+    logger.info(
+      `watching ${wallet.label} (${wallet.address}) for ${(wallet.asset || 'trx').toUpperCase()} every ${config.POLL_INTERVAL_MS}ms`
+    );
   }
 }
 

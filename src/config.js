@@ -30,13 +30,29 @@ if (WALLETS.length === 0) {
   throw new Error('No wallets have a configured private key - set at least one PK_<LABEL> in .env');
 }
 
+// The real Tron mainnet USDT-TRC20 contract, verified on Tronscan. 'usdt' wallets only
+// ever check/sweep against this exact contract - never a token discovered by name/symbol -
+// because scam tokens routinely deploy clones named/symbol'd "USDT" to trick sweepers.
+const OFFICIAL_USDT_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+const usdtContractAddress = process.env.USDT_CONTRACT_ADDRESS || OFFICIAL_USDT_CONTRACT;
+if (usdtContractAddress !== OFFICIAL_USDT_CONTRACT) {
+  logger.warn(
+    `USDT_CONTRACT_ADDRESS is overridden to ${usdtContractAddress}, which does not match the ` +
+      `official Tron USDT contract (${OFFICIAL_USDT_CONTRACT}). Only do this if you have ` +
+      'personally verified this contract - otherwise usdt wallets may sweep a worthless clone token.'
+  );
+}
+
 module.exports = {
   WALLETS,
   COLLECTION_WALLET: requireEnv('COLLECTION_WALLET_ADDRESS'),
   TRONGRID_API_KEY: process.env.TRONGRID_API_KEY || '',
   FULL_HOST: process.env.TRON_FULL_HOST || 'https://api.trongrid.io',
   THRESHOLD_TRX: Number(process.env.THRESHOLD_TRX || 5),
+  THRESHOLD_USDT: Number(process.env.THRESHOLD_USDT || 5),
   RESERVE_TRX: Number(process.env.RESERVE_TRX || 1),
+  USDT_CONTRACT_ADDRESS: usdtContractAddress,
+  TRC20_FEE_LIMIT_TRX: Number(process.env.TRC20_FEE_LIMIT_TRX || 20),
   POLL_INTERVAL_MS: Number(process.env.POLL_INTERVAL_MS || 1000),
   SWEEP_RETRY_COOLDOWN_MS: Number(process.env.SWEEP_RETRY_COOLDOWN_MS || 2000),
   PORT: Number(process.env.PORT || 3300),

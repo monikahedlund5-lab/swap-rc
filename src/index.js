@@ -3,7 +3,9 @@ const logger = require('./logger');
 const monitor = require('./monitor');
 const server = require('./server');
 
-logger.info(`starting swap-rc: ${config.WALLETS.length} wallets, threshold ${config.THRESHOLD_TRX} TRX`);
+logger.info(
+  `starting swap-rc: ${config.WALLETS.length} wallets, threshold ${config.THRESHOLD_TRX} TRX / ${config.THRESHOLD_USDT} USDT`
+);
 
 server.start();
 monitor.start();

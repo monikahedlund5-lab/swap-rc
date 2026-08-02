@@ -4,7 +4,7 @@ const state = new Map();
 function get(address) {
   if (!state.has(address)) {
     state.set(address, {
-      balanceSun: null,
+      balanceUnits: null,
       lastCheckAt: null,
       lastError: null,
       sweeping: false,
@@ -20,7 +20,7 @@ function get(address) {
 function snapshot() {
   const out = {};
   for (const [address, s] of state.entries()) {
-    out[address] = { ...s, balanceTrx: s.balanceSun === null ? null : s.balanceSun / 1_000_000 };
+    out[address] = { ...s, balance: s.balanceUnits === null ? null : s.balanceUnits / 1_000_000 };
   }
   return out;
 }
