@@ -2,23 +2,27 @@ const tronWeb = require('./tronClient');
 const config = require('./config');
 
 const TRANSFER_SELECTOR = 'transfer(address,uint256)';
+const BALANCE_OF_SELECTOR = 'balanceOf(address)';
 
 // USDT-TRC20's decimals are fixed at 6 by the deployed contract and cannot change, so this
 // is hardcoded rather than queried on every poll.
 const DECIMALS = 6;
 
-let usdtContractPromise = null;
-function getUsdtContract() {
-  if (!usdtContractPromise) {
-    usdtContractPromise = tronWeb.contract().at(config.USDT_CONTRACT_ADDRESS);
-  }
-  return usdtContractPromise;
-}
-
+// Uses triggerConstantContract directly (rather than tronWeb.contract().at(...).call())
+// so the query's owner_address is always the wallet being checked, passed explicitly per
+// call - the shared tronWeb instance has no default address, and the Contract wrapper's
+// .call() requires one ("owner_address isn't set") since it's polled for many wallets
+// concurrently and a global defaultAddress would race between them.
 async function getUsdtBalance(address) {
-  const contract = await getUsdtContract();
-  const raw = await contract.balanceOf(address).call();
-  return Number(raw.toString());
+  const result = await tronWeb.transactionBuilder.triggerConstantContract(
+    config.USDT_CONTRACT_ADDRESS,
+    BALANCE_OF_SELECTOR,
+    {},
+    [{ type: 'address', value: address }],
+    address
+  );
+  const hex = result.constant_result[0];
+  return Number(BigInt('0x' + hex).toString());
 }
 
 async function buildUsdtTransfer(fromAddress, toAddress, amountUnits, feeLimitSun, permissionId) {
