@@ -14,7 +14,8 @@
 // active permission's "keys", not the new owner address.
 module.exports = [
   { label: 'wallet01', address: 'TPwh57URmiWRCNJq2eUXBidfVm4yHRJnWz', permissionId: 2, asset: 'trx' },
-  { label: 'wallet02', address: 'TWzZfuUZ7W7sRssAY5eN1w75RcRPyz1zHZ', asset: 'usdt', permissionId: 2 },
+  // usdt sweeping paused - re-enable by uncommenting
+  // { label: 'wallet02', address: 'TWzZfuUZ7W7sRssAY5eN1w75RcRPyz1zHZ', asset: 'usdt', permissionId: 2 },
   // { label: 'wallet03', address: 'T...', asset: 'trx' },
   // ... add the rest of your wallets here
 ];
